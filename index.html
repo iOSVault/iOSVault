@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOSVault</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="asstes/favicon.png" type="image/x-icon">
+</head>
+<body>
+    <header class="app-bar">
+        <h1>iOS Old Games Downloader</h1>
+        <input id="search-bar" type="text" placeholder="Search games..." oninput="filterGames()">
+    </header>
+
+    <main>
+        <section>
+            <h2>Available Games</h2>
+            <div id="loading">Loading games...</div>
+            <div id="games-container" class="games-grid"></div>
+        </section>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
