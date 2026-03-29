@@ -3,6 +3,7 @@ const apiUrls = [
     { url: 'https://archive.org/metadata/ios_2_ipa', version: 'iOS 2.x' },
     { url: 'https://archive.org/metadata/ios_2_ipa_p2', version: 'iOS 2.x' }
 ];
+
 const gamesContainer = document.getElementById('games-container');
 const loadingIndicator = document.getElementById('loading');
 const searchBar = document.getElementById('search-bar');
@@ -11,6 +12,20 @@ let allGamesList = [];
 let filteredGamesList = []; 
 let currentIndex = 0; 
 const itemsPerPage = 15;
+
+function formatFileSize(bytes) {
+    bytes = parseInt(bytes, 10);
+
+    if (bytes >= 1024 * 1024 * 1024) {
+        return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    } else if (bytes >= 1024 * 1024) {
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    } else if (bytes >= 1024) {
+        return (bytes / 1024).toFixed(2) + ' KB';
+    } else {
+        return bytes + ' B';
+    }
+}
 
 async function fetchGames() {
     try {
@@ -67,13 +82,20 @@ function createGameCard(file) {
     const card = document.createElement('div');
     card.className = 'card';
 
-    const imageUrl = `https://archive.org/download/${file.version === 'iOS 3.x' ? 'ios_3_ipa' : file.version === 'iOS 2.x' ? (file.name.includes('p2') ? 'ios_2_ipa_p2' : 'ios_2_ipa') : ''}/${file.name}/iTunesArtwork`;
+    const basePath =
+        file.version === 'iOS 3.x'
+            ? 'ios_3_ipa'
+            : file.version === 'iOS 2.x'
+            ? (file.name.includes('p2') ? 'ios_2_ipa_p2' : 'ios_2_ipa')
+            : '';
+
+    const imageUrl = `https://archive.org/download/${basePath}/${file.name}/iTunesArtwork`;
 
     const image = document.createElement('img');
     image.src = imageUrl;
     image.alt = file.name;
     image.onerror = () => {
-        image.src = 'https://via.placeholder.com/150?text=No+Image'; 
+        image.src = 'https://via.placeholder.com/150?text=No+Image';
     };
 
     const content = document.createElement('div');
@@ -88,8 +110,15 @@ function createGameCard(file) {
     version.style.fontSize = '0.9rem';
     version.style.color = '#777';
 
+    const size = document.createElement('p');
+    size.textContent = file.size
+        ? `Size: ${formatFileSize(file.size)}`
+        : 'Size: Unknown';
+    size.style.fontSize = '0.9rem';
+    size.style.color = '#777';
+
     const downloadLink = document.createElement('a');
-    const fileUrl = `https://archive.org/download/${file.version === 'iOS 3.x' ? 'ios_3_ipa' : file.version === 'iOS 2.x' ? (file.name.includes('p2') ? 'ios_2_ipa_p2' : 'ios_2_ipa') : ''}/${file.name}`;
+    const fileUrl = `https://archive.org/download/${basePath}/${file.name}`;
     
     downloadLink.href = fileUrl;
     downloadLink.textContent = 'Download';
@@ -103,7 +132,9 @@ function createGameCard(file) {
 
     content.appendChild(title);
     content.appendChild(version);
+    content.appendChild(size); 
     content.appendChild(downloadLink);
+
     card.appendChild(image);
     card.appendChild(content);
 
@@ -130,19 +161,23 @@ function createLoadMoreButton() {
 
 function filterGames() {
     const query = searchBar.value.toLowerCase(); 
-    filteredGamesList = allGamesList.filter(game => game.name.toLowerCase().includes(query)); 
-    gamesContainer.innerHTML = ''; // 
+    filteredGamesList = allGamesList.filter(game =>
+        game.name.toLowerCase().includes(query)
+    ); 
+
+    gamesContainer.innerHTML = '';
     currentIndex = 0; 
     renderGames(); 
+
     const loadMoreButton = document.getElementById('load-more');
     if (loadMoreButton) {
-        loadMoreButton.style.display = currentIndex < filteredGamesList.length ? 'block' : 'none';
+        loadMoreButton.style.display =
+            currentIndex < filteredGamesList.length ? 'block' : 'none';
     }
 }
 
 function initialize() {
     fetchGames();
-
     searchBar.addEventListener('input', filterGames);
 }
 
