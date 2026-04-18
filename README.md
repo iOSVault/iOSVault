@@ -26,8 +26,6 @@ Disclaimer
 
 ---
 
-Special Thanks
-
 Special thanks to:
 
 https://archive.org/details/@wp2000
